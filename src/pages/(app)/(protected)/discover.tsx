@@ -21,7 +21,7 @@ import {
   SourceLink,
 } from '@/components/opportunity/Shared'
 import { callAction, useTask } from '@/lib/client'
-import { dateLabel, type SearchData, type LeadData } from '@/lib/domain'
+import { dateLabel, dedupeOpportunities, type SearchData, type LeadData } from '@/lib/domain'
 
 const examples = [
   'Junior frontend roles at climate companies in the US',
@@ -52,9 +52,8 @@ export default function DiscoverPage() {
   const selected = searches.records.find((s) => s.recordId === selectedId) ?? searches.records[0]
   const data = selected?.data
   const inProgress = data && !['complete', 'failed'].includes(data.status)
-  const opportunities = (data?.opportunities ?? []).filter(
-    (o) => filter === 'all' || o.fit === filter,
-  )
+  const shortlist = dedupeOpportunities(data?.opportunities ?? [])
+  const opportunities = shortlist.filter((o) => filter === 'all' || o.fit === filter)
   async function search() {
     await searchTask.run(async () => {
       setSelectedId('')
@@ -203,7 +202,7 @@ export default function DiscoverPage() {
             <div>
               <p className="eyebrow">THE SHORTLIST</p>
               <h2>
-                {data.opportunities.length} possibilities to explore
+                {shortlist.length} possibilities to explore
                 <span>Checked {dateLabel(data.searchedAt)}</span>
               </h2>
             </div>

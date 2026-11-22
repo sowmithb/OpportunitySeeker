@@ -1,6 +1,6 @@
 # Submission note — draft
 
-Live URL: to be filled after deployment.
+Live URL: https://opportunityseeker.app.space
 
 Repository: https://github.com/sowmithb/OpportunitySeeker
 

@@ -2,6 +2,8 @@
 
 Turn a public opportunity into a thoughtful introduction: describe what you want, inspect sourced matches, find relevant people, save a lead, and write an editable message. Reviewed emails send through your own Gmail account. LinkedIn messages are copied and sent manually.
 
+**Live:** [opportunityseeker.app.space](https://opportunityseeker.app.space)
+
 Built on DeepSpace 0.44.2. Submission deadline: **November 23, 2026, 11:59 PM Eastern**.
 
 ## The important path
@@ -43,6 +45,8 @@ The default Claude model is `claude-haiku-4-5`. All model output is parsed and v
 ### Send semantics
 
 Each send refers to a saved, reviewed draft revision. A durable claim permits one in-flight send per draft and blocks further sends after provider acceptance. Gmail's exposed endpoint has no documented idempotency key: if transport fails after the request may have been accepted, the app records `unknown`, blocks automatic retry, and asks the user to check Gmail Sent. Exactly-once external delivery is not claimed.
+
+Non-ASCII subject values are encoded as RFC 2047 UTF-8 words to avoid header corruption in the provider path; the UI and saved drafts retain the original text.
 
 Drafts are saved in the app, not synchronized to Gmail Drafts. Replies and lead statuses are manually maintained. Public LinkedIn profiles do not supply an email field; recipient addresses are entered by the user.
 

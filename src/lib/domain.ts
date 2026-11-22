@@ -261,13 +261,33 @@ export function rankFromModel(payload: unknown, sources: Source[]): Opportunity[
   const ranked = rankedSchema.parse(payload)
   const byId = new Map(sources.map((s) => [s.id, s]))
   const seen = new Set<string>()
-  return ranked.recommendations.map((rec) => {
-    const source = byId.get(rec.sourceId)
-    if (!source || seen.has(rec.sourceId))
-      throw new Error('The AI cited an invalid or duplicate source.')
-    seen.add(rec.sourceId)
-    const { sourceId, ...fields } = rec
-    return { ...fields, id: sourceId, source }
+  return dedupeOpportunities(
+    ranked.recommendations.map((rec) => {
+      const source = byId.get(rec.sourceId)
+      if (!source || seen.has(rec.sourceId))
+        throw new Error('The AI cited an invalid or duplicate source.')
+      seen.add(rec.sourceId)
+      const { sourceId, ...fields } = rec
+      return { ...fields, id: sourceId, source }
+    }),
+  )
+}
+
+/** Collapse mirrored listings across job boards, keeping the highest-ranked source. */
+export function dedupeOpportunities(opportunities: Opportunity[]): Opportunity[] {
+  const seen = new Set<string>()
+  const normalized = (text: string) =>
+    text
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+  return opportunities.filter((opportunity) => {
+    const company = normalized(opportunity.company) || hostname(opportunity.source.url)
+    const key = `${company}|${normalized(opportunity.title)}|${opportunity.kind}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
   })
 }
 
@@ -309,10 +329,14 @@ export function hostname(url: string): string {
   }
 }
 
-export function dateLabel(date: string | number | null): string {
+export function dateLabel(date: string | number | null, calendarDate = false): string {
   if (!date) return 'Date not provided'
   const parsed = new Date(date)
   return Number.isFinite(parsed.getTime())
-    ? parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    ? parsed.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        ...(calendarDate ? { timeZone: 'UTC' } : {}),
+      })
     : 'Date not provided'
 }

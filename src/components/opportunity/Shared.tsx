@@ -108,7 +108,7 @@ export function OpportunitySummary({
         <FitBadge fit={o.fit} />
         <span className="small-muted">
           {o.kind === 'job' ? 'Job' : o.kind === 'project' ? 'Project' : 'Opportunity'} ·{' '}
-          {dateLabel(o.source.publishedDate)}
+          {dateLabel(o.source.publishedDate, true)}
         </span>
       </div>
     </>

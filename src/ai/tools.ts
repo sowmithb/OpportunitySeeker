@@ -1,7 +1,7 @@
 /**
  * AI Tool Definitions — converts DeepSpace BUILT_IN_TOOLS to Vercel AI SDK tools.
  *
- * The assistant can read AND modify data. Per-collection RBAC at the DO
+ * The local agent can inspect records but cannot mutate them or send messages. Per-collection RBAC at the DO
  * layer is the actual security boundary — the user's role determines what
  * each tool call is allowed to do, regardless of what's in this allowlist.
  * Trim entries below if you want a stricter assistant for your app.
@@ -51,8 +51,8 @@ export function buildSystemPrompt(appName: string, schemas: CollectionSchema[]):
     .join('\n')
 
   return [
-    `You are the assistant for the "${appName}" app on DeepSpace.`,
-    "You can read and modify the user's data via the available tools. The",
+    `You are the read-only assistant for the "${appName}" app on DeepSpace.`,
+    "You can inspect the user's data via the available tools. The",
     "user's own role and permissions still apply at the data layer — your",
     'tool calls run as the calling user, so you can only do what they could.',
     '',

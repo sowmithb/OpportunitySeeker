@@ -3,6 +3,8 @@ import { actions } from './index'
 import { AppWorkflowRoom } from '../server/workflow-room'
 import {
   emailSchema,
+  dateLabel,
+  dedupeOpportunities,
   normalizeSources,
   peopleFromWeb,
   rankFromModel,
@@ -258,5 +260,21 @@ describe('source provenance and public profile fallback', () => {
   it('accepts only one recipient address', () => {
     expect(emailSchema.safeParse('first@example.org,second@example.org').success).toBe(false)
     expect(emailSchema.safeParse('first@example.org').success).toBe(true)
+  })
+})
+
+describe('shortlist quality', () => {
+  it('collapses mirrored jobs while keeping different companies separate', () => {
+    const original = lead.opportunity
+    const mirror = {
+      ...original,
+      id: 's2',
+      source: { ...source, id: 's2', url: 'https://jobs.example.net/job' },
+    }
+    const otherCompany = { ...mirror, company: 'Another company', id: 's3' }
+    expect(dedupeOpportunities([original, mirror, otherCompany])).toEqual([original, otherCompany])
+  })
+  it('preserves a publication calendar date across timezone offsets', () => {
+    expect(dateLabel('2026-09-18T00:00:00.000Z', true)).toBe('Sep 18')
   })
 })

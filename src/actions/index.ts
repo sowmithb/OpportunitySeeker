@@ -22,6 +22,7 @@ import {
   type SeekerProfile,
 } from '../lib/domain'
 import type { SendClaim } from '../server/workflow-room'
+import { emailSubjectHeader } from '../lib/email'
 
 type Ctx = ActionContext<Env>
 const id = z.string().min(1).max(160)
@@ -432,7 +433,7 @@ export const actions: Record<string, ActionHandler<Env>> = {
     try {
       result = await ctx.tools.integration('google/gmail-send', {
         to: draft.recipient,
-        subject: draft.subject,
+        subject: emailSubjectHeader(draft.subject),
         content: draft.body,
       })
     } catch {
