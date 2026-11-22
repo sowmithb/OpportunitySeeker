@@ -32,6 +32,8 @@ import {
   apiWorkerFetch,
   lookupOwn,
   normalizeApiError,
+  readBoundedBodyText,
+  BodyTooLargeError,
   splitIntegrationEndpoint,
 } from 'deepspace/worker'
 import type { ActionResult, ActionTools, VerifyResult } from 'deepspace/worker'
@@ -62,7 +64,18 @@ export function registerActionRoutes(app: Hono<AppContext>, resolveAuth: Resolve
     // returns the handler argument, env secrets included, as the response.
     const action = lookupOwn(actions, name)
     if (!action) return c.json({ error: 'Action not found' }, 404)
-    const params = await c.req.json<Record<string, unknown>>()
+    let params: Record<string, unknown>
+    try {
+      const body = await readBoundedBodyText(c.req.raw, 32 * 1024)
+      const parsed: unknown = JSON.parse(body)
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))
+        return c.json({ success: false, error: 'Expected a JSON object.' }, 400)
+      params = parsed as Record<string, unknown>
+    } catch (error) {
+      if (error instanceof BodyTooLargeError)
+        return c.json({ success: false, error: 'Request is too large.' }, 413)
+      return c.json({ success: false, error: 'Expected valid JSON.' }, 400)
+    }
     const tools = createActionTools(c.env, auth.userId, callerJwt)
     const result = await action({ userId: auth.userId, params, tools, env: c.env, callerJwt })
     return c.json(result as unknown as Record<string, unknown>)

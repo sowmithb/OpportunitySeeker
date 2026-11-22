@@ -1,5 +1,7 @@
 # Opportunity Finder — functionality, integrations, and feasibility
 
+> Planning snapshot. Development is now underway with job seekers as the primary audience, reviewed Gmail sending, and the existing sowmithb/OpportunitySeeker repository. Deadline: November 23, 2026 at 11:59 PM Eastern. See docs/VERIFICATION.md for current status; authentication and provider observations below describe the earlier research stage.
+
 Research date: November 22, 2026. Submission target: November 23, 2026.
 
 ## 1. Decision
@@ -31,21 +33,21 @@ Support three intent labels—job, project/freelance, and other opportunity—th
 
 ## 3. Required functionality for a finished submission
 
-| Area | Required behavior | Completion check |
-| --- | --- | --- |
-| Account and profile | DeepSpace sign-in; private professional summary and preferences | Two users cannot read each other's private records |
-| Request interpretation | AI converts a request into validated search criteria; user can edit them | Ambiguous or empty requests produce a useful correction path |
-| Opportunity discovery | Bounded public web search for jobs, projects, or announcements | Results include source URLs; no results has a useful empty state |
-| Evidence and freshness | Retain source excerpts, retrieved time, and publication date when available | Missing dates stay unknown; no unsupported claim that a listing is still open |
-| People discovery | Search public LinkedIn profiles by company/title and optional other supported filters | Each contact has its returned profile URL and available context |
-| Matching | AI explains relevance using retrieved evidence and user-provided skills | An employee is not described as a hiring manager unless evidence supports it |
-| Lead details | Opportunity, company, possible contact, source links, explanation, notes | User can inspect evidence before drafting |
-| Saved leads | Save, edit notes, remove, and filter simple lead statuses | State persists after refresh |
-| Message drafts | Editable email subject/body and short LinkedIn message; save and regenerate | Edits persist; generation never sends anything |
-| Email sending | Send the reviewed message to one explicit recipient through connected Gmail | Show acting account, recipient, subject, body, and a deliberate Send action |
-| LinkedIn handoff | Copy draft and open returned profile URL | Opening a profile is never recorded as a confirmed send |
-| Recovery | Loading, empty, error, retry, partial-results, and insufficient-credit states | A people-search failure preserves existing opportunity results and drafts |
-| Responsive UI | Three main surfaces: discover, lead detail/outreach, saved leads; account settings can be a panel | Important path works on desktop and a narrow viewport |
+| Area                   | Required behavior                                                                                 | Completion check                                                              |
+| ---------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Account and profile    | DeepSpace sign-in; private professional summary and preferences                                   | Two users cannot read each other's private records                            |
+| Request interpretation | AI converts a request into validated search criteria; user can edit them                          | Ambiguous or empty requests produce a useful correction path                  |
+| Opportunity discovery  | Bounded public web search for jobs, projects, or announcements                                    | Results include source URLs; no results has a useful empty state              |
+| Evidence and freshness | Retain source excerpts, retrieved time, and publication date when available                       | Missing dates stay unknown; no unsupported claim that a listing is still open |
+| People discovery       | Search public LinkedIn profiles by company/title and optional other supported filters             | Each contact has its returned profile URL and available context               |
+| Matching               | AI explains relevance using retrieved evidence and user-provided skills                           | An employee is not described as a hiring manager unless evidence supports it  |
+| Lead details           | Opportunity, company, possible contact, source links, explanation, notes                          | User can inspect evidence before drafting                                     |
+| Saved leads            | Save, edit notes, remove, and filter simple lead statuses                                         | State persists after refresh                                                  |
+| Message drafts         | Editable email subject/body and short LinkedIn message; save and regenerate                       | Edits persist; generation never sends anything                                |
+| Email sending          | Send the reviewed message to one explicit recipient through connected Gmail                       | Show acting account, recipient, subject, body, and a deliberate Send action   |
+| LinkedIn handoff       | Copy draft and open returned profile URL                                                          | Opening a profile is never recorded as a confirmed send                       |
+| Recovery               | Loading, empty, error, retry, partial-results, and insufficient-credit states                     | A people-search failure preserves existing opportunity results and drafts     |
+| Responsive UI          | Three main surfaces: discover, lead detail/outreach, saved leads; account settings can be a panel | Important path works on desktop and a narrow viewport                         |
 
 Use manually entered recipient addresses or clearly attributed public contact details. The LinkedIn profile response schema does **not** include an email address. Never generate or guess an address from a person's name or company domain.
 
@@ -55,14 +57,14 @@ An app-saved email draft is not a Gmail mailbox draft. The native Google catalog
 
 The following endpoint keys and schemas were checked using the live CLI, rather than inferred from provider names. [DeepSpace documents catalog discovery here](https://docs.deep.space/guides/external-apis).
 
-| Integration | Purpose | Scope and important limitation | Billing recommendation |
-| --- | --- | --- | --- |
-| `exa/search` | Discover public opportunities and original company pages | Query, result-count, domain, content, and publication-date options exist; indexed results are not proof an opening remains active | Developer-paid; bound usage per user |
-| `linkedin/search-profiles` | Find relevant people at a target company | Scoped Google search over public profiles. Inputs: `name`, `company`, `title`, `education`, `location`, `page`. Location only refines another supported search term | Developer-paid; run on selected opportunities |
-| `anthropic/chat-completion` | Interpret requests, explain/rank retrieved matches, generate drafts | Use a supported economical Claude model, bounded tokens, validated structured output, and source IDs. AI has no send tool | Developer-paid; validate outputs server-side |
-| `google/gmail-send` | Send an approved email from the user's mailbox | Requires per-user Google consent. Required body fields: `to`, `subject`, `content`; HTML and threading are optional | **User-paid is mandatory** for `google/*` |
-| `linkedin/analyze-profile-url` | Optional extra profile context before drafting | Returns a normalized profile summary, not a private profile or verified biography; use on demand | Developer-paid; defer until core works |
-| `anymailfinder/find-linkedin-url` | Optional work-email lookup for a selected person | Input: `linkedin_url`. May return no address; response quality and exact payload need a real test | Developer-paid; user-triggered only; optional for deadline |
+| Integration                       | Purpose                                                             | Scope and important limitation                                                                                                                                      | Billing recommendation                                     |
+| --------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `exa/search`                      | Discover public opportunities and original company pages            | Query, result-count, domain, content, and publication-date options exist; indexed results are not proof an opening remains active                                   | Developer-paid; bound usage per user                       |
+| `linkedin/search-profiles`        | Find relevant people at a target company                            | Scoped Google search over public profiles. Inputs: `name`, `company`, `title`, `education`, `location`, `page`. Location only refines another supported search term | Developer-paid; run on selected opportunities              |
+| `anthropic/chat-completion`       | Interpret requests, explain/rank retrieved matches, generate drafts | Use a supported economical Claude model, bounded tokens, validated structured output, and source IDs. AI has no send tool                                           | Developer-paid; validate outputs server-side               |
+| `google/gmail-send`               | Send an approved email from the user's mailbox                      | Requires per-user Google consent. Required body fields: `to`, `subject`, `content`; HTML and threading are optional                                                 | **User-paid is mandatory** for `google/*`                  |
+| `linkedin/analyze-profile-url`    | Optional extra profile context before drafting                      | Returns a normalized profile summary, not a private profile or verified biography; use on demand                                                                    | Developer-paid; defer until core works                     |
+| `anymailfinder/find-linkedin-url` | Optional work-email lookup for a selected person                    | Input: `linkedin_url`. May return no address; response quality and exact payload need a real test                                                                   | Developer-paid; user-triggered only; optional for deadline |
 
 ### Gmail behavior to implement
 
@@ -95,12 +97,12 @@ See [server actions](https://docs.deep.space/guides/server-actions.md), [data st
 
 ### Small data model
 
-| Collection | Main fields |
-| --- | --- |
-| `searches` | owner, original request, parsed criteria, stage/status, bounded result/evidence JSON, timestamps |
-| `leads` | owner, search ID, opportunity URL, company, selected profile URL, explanation/evidence references, notes, lead status |
-| `drafts` | owner, lead ID, channel, recipient, subject, body, revision, timestamps |
-| `outreach_attempts` | owner, draft ID/revision, channel, attempt ID, status, provider message ID when available, error, timestamps |
+| Collection          | Main fields                                                                                                           |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `searches`          | owner, original request, parsed criteria, stage/status, bounded result/evidence JSON, timestamps                      |
+| `leads`             | owner, search ID, opportunity URL, company, selected profile URL, explanation/evidence references, notes, lead status |
+| `drafts`            | owner, lead ID, channel, recipient, subject, body, revision, timestamps                                               |
+| `outreach_attempts` | owner, draft ID/revision, channel, attempt ID, status, provider message ID when available, error, timestamps          |
 
 Store the professional summary in the extended user record. Set owner fields on the server for privileged writes; clients must not be able to assign records to another user. Keep AI-produced evidence separate from user-authored notes.
 
@@ -125,17 +127,17 @@ The Gmail integration schema does not advertise an idempotency key. If a request
 
 ## 6. Feasibility and evidence ledger
 
-| Capability | Evidence checked | Conclusion |
-| --- | --- | --- |
-| Full-stack hosting and persistent data | Architecture, deployment, storage, and permissions docs | Supported without separate infrastructure |
-| Public opportunity discovery | Live `exa/search` input/output schemas | Available; actual result quality untested |
-| Public LinkedIn people discovery | Live `linkedin/search-profiles` schema | Available; public index coverage only |
-| AI interpretation and drafting | Live `anthropic/chat-completion` schema | Available; selected model/output handling need a real call |
-| Draft persistence and editing | Record storage and permissions docs | Supported |
-| Sending from user's Gmail | Live `google/gmail-send` schema plus OAuth contract | Supported subject to consent, credits, and a real send test |
-| Sending personal LinkedIn DMs from the app | Native catalog has no dedicated LinkedIn send endpoint; official Messages API restricts access | Exclude; ship draft/copy/profile handoff |
-| Live connection graph | Native LinkedIn catalog and official Connections API restrictions | Exclude from submission dependency |
-| Deployment in this account | CLI `auth whoami --json` returned `not_authenticated` | Not verified; sign-in and deploy remain required |
+| Capability                                 | Evidence checked                                                                               | Conclusion                                                  |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Full-stack hosting and persistent data     | Architecture, deployment, storage, and permissions docs                                        | Supported without separate infrastructure                   |
+| Public opportunity discovery               | Live `exa/search` input/output schemas                                                         | Available; actual result quality untested                   |
+| Public LinkedIn people discovery           | Live `linkedin/search-profiles` schema                                                         | Available; public index coverage only                       |
+| AI interpretation and drafting             | Live `anthropic/chat-completion` schema                                                        | Available; selected model/output handling need a real call  |
+| Draft persistence and editing              | Record storage and permissions docs                                                            | Supported                                                   |
+| Sending from user's Gmail                  | Live `google/gmail-send` schema plus OAuth contract                                            | Supported subject to consent, credits, and a real send test |
+| Sending personal LinkedIn DMs from the app | Native catalog has no dedicated LinkedIn send endpoint; official Messages API restricts access | Exclude; ship draft/copy/profile handoff                    |
+| Live connection graph                      | Native LinkedIn catalog and official Connections API restrictions                              | Exclude from submission dependency                          |
+| Deployment in this account                 | CLI `auth whoami --json` returned `not_authenticated`                                          | Not verified; sign-in and deploy remain required            |
 
 No email, LinkedIn message, account mutation, or deployment was performed during this research. No paid provider invocation was performed. Public catalog discovery is available without login; successful discovery does not prove an account has credits or provider authorization.
 

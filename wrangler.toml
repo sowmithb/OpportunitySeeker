@@ -35,10 +35,11 @@ NATIVE_AUTH_REDIRECT_URIS = ""
 
 [[migrations]]
 tag = "v1"
-new_sqlite_classes = ["AppRecordRoom", "AppYjsRoom", "AppCanvasRoom", "AppPresenceRoom", "AppCronRoom", "AppJobRoom"]
+new_sqlite_classes = ["AppRecordRoom", "AppYjsRoom", "AppCanvasRoom", "AppPresenceRoom", "AppCronRoom", "AppJobRoom", "AppWorkflowRoom"]
 
 [durable_objects]
 bindings = [
+  { name = "WORKFLOW_ROOMS", class_name = "AppWorkflowRoom" },
   { name = "RECORD_ROOMS", class_name = "AppRecordRoom" },
   { name = "YJS_ROOMS", class_name = "AppYjsRoom" },
   { name = "CANVAS_ROOMS", class_name = "AppCanvasRoom" },

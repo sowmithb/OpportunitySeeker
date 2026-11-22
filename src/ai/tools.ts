@@ -20,9 +20,6 @@ const ALLOWED_TOOL_NAMES = [
   'schema.describe',
   'records.query',
   'records.get',
-  'records.create',
-  'records.update',
-  'records.delete',
   'user.current',
 ]
 

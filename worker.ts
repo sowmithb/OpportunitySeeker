@@ -33,9 +33,11 @@ import {
   resolveAuth,
 } from './src/server/http-routes.js'
 import { registerRealtimeRoutes } from './src/server/realtime-routes.js'
+export { AppWorkflowRoom } from './src/server/workflow-room.js'
 
 // Dynamic deploy reads this manifest to create the app's DO bindings.
 export const __DO_MANIFEST__ = [
+  { binding: 'WORKFLOW_ROOMS', className: 'AppWorkflowRoom', sqlite: true },
   { binding: 'RECORD_ROOMS', className: 'AppRecordRoom', sqlite: true },
   { binding: 'YJS_ROOMS', className: 'AppYjsRoom', sqlite: true },
   { binding: 'CANVAS_ROOMS', className: 'AppCanvasRoom', sqlite: true },
